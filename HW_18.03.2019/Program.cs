@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace HW_18._03._2019
 {
@@ -18,7 +19,7 @@ namespace HW_18._03._2019
     class Repo
     {
         string connectionString = "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=URLDB;Data Source=DESKTOP-O9KC10I";
-        
+
         public IEnumerable<URLDto> GetOnlyURL()
         {
             ICollection<URLDto> url = new List<URLDto>();
@@ -53,11 +54,11 @@ namespace HW_18._03._2019
                 url.Add(new URLDto()
                 {
                     NCount = Int32.Parse(NCount.ToString())
-                });                
+                });
             }
             connection.Close();
             return url;
-           
+
         }
         public void UpdateCount(int count)
         {
@@ -85,13 +86,21 @@ namespace HW_18._03._2019
 
             var finalString = new String(stringChars);
             Console.WriteLine(finalString);
+        }       
+
+        public static string GetHash(string input)
+        {
+            var md5 = MD5.Create();
+            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+            return Convert.ToBase64String(hash);
         }
         static void Main(string[] args)
         {
 
             Console.WriteLine("Что вы хотите сделать?");
             Console.WriteLine("1. Получить короткую URL ссылку");
-            Console.WriteLine("2. Получить полную URL ссылку");           
+            Console.WriteLine("2. Получить полную URL ссылку");
 
             int choice = int.Parse(Console.ReadLine());
             switch (choice)
@@ -106,12 +115,22 @@ namespace HW_18._03._2019
                             {
                                 Console.WriteLine("Ссылкой можно воспользоваться только 5 раз");
                             }
-                            Console.WriteLine("Количество попыток = {0}",item.NCount);
+                            Console.WriteLine("Количество попыток = {0}", item.NCount);
                             int count1 = item.NCount;
                             while (count1 > 0)
                             {
                                 count1--;
                                 r.UpdateCount(count1);
+                                //Хэширование MD5
+
+                                //Repo r1 = new Repo();
+                                //var url = r1.GetOnlyURL();
+                                //foreach (URLDto i in url)
+                                //{
+                                //    Console.WriteLine(GetHash(i.URL.ToString()));
+                                //}
+
+                                //С помощью char
                                 charRnd();
                                 Console.WriteLine("Еще раз? д/н");
                                 string c = Console.ReadLine();
@@ -120,8 +139,8 @@ namespace HW_18._03._2019
                                     break;
                                 }
 
-                            }                            
-                        }                        
+                            }
+                        }
                     }
                     break;
                 case 2:
